@@ -8,7 +8,7 @@
 > 
 > func main() {
 >   client := emoji.New("email", "password")
->   client.Login()// 이곤몽미
+>   client.Login()
 >   client.SendEmoji("shaky-animals-2", 1)
 > }
 > ```

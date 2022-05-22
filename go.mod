@@ -1,3 +1,3 @@
-module github.com/app6460/emot-preview
+module github.com/app6460/go-kakaoEmoji
 
 go 1.17
