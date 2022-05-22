@@ -1,4 +1,4 @@
-package emoji
+package ekakao
 
 import (
 	"encoding/json"
