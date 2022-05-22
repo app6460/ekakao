@@ -1,12 +1,13 @@
-package emotpreview
+package emoji
 
 import (
 	"encoding/json"
+	"net/url"
 )
 
-func getTiaraUrl() string {
-	dt := generateRandomUUIDWithDateTime()
-	dn := generateRandomUUIDWithDateNumber()
+func GetTiaraUrl() string {
+	dt := GenerateRandomUUIDWithDateTime()
+	dn := GenerateRandomUUIDWithDateNumber()
 	data := map[string]interface{}{
 		"sdk": map[string]interface{}{
 			"type":    "WEB",
@@ -46,5 +47,8 @@ func getTiaraUrl() string {
 		panic(err)
 	}
 
-	return string(res)
+	param := url.Values{}
+	param.Add("d", string(res))
+
+	return "https://stat.tiara.kakao.com/track?" + param.Encode()
 }

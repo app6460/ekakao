@@ -1,4 +1,4 @@
-package emotpreview
+package emoji
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ var seedKey = []string{
 
 var reg, _ = regexp.Compile(`[TZ\-:.]`)
 
-func shortenID(t int) string {
+func ShortenID(t int) string {
 	var b bytes.Buffer
 	for i := 0; i < t; i++ {
 		n := rand.Int() % len(seedKey)
@@ -24,36 +24,36 @@ func shortenID(t int) string {
 	return b.String()
 }
 
-func randomNumericString(t int) string {
+func RandomNumericString(t int) string {
 	var b bytes.Buffer
 	for i := 0; i < t; i++ {
 		n := rand.Int()%10 + 48
-		b.WriteString(string(n))
+		b.WriteString(string(rune(n)))
 	}
 	return b.String()
 }
 
-func currentTimeStamp() string {
+func CurrentTimeStamp() string {
 	t := time.Now().Add(time.Hour * 9)
 	s := t.Format("2006-01-02T15:04:05.999")
 	return reg.ReplaceAllString(s, "")[2:]
 }
 
-func generateRandomUUIDWithDateNumber() string {
+func GenerateRandomUUIDWithDateNumber() string {
 	var b bytes.Buffer
 	b.WriteString("w-")
-	b.WriteString(shortenID(12))
+	b.WriteString(ShortenID(12))
 	b.WriteString("_")
-	b.WriteString(currentTimeStamp()[:6])
-	b.WriteString(randomNumericString(9))
+	b.WriteString(CurrentTimeStamp()[:6])
+	b.WriteString(RandomNumericString(9))
 	return b.String()
 }
 
-func generateRandomUUIDWithDateTime() string {
+func GenerateRandomUUIDWithDateTime() string {
 	var b bytes.Buffer
 	b.WriteString("w-")
-	b.WriteString(shortenID(12))
+	b.WriteString(ShortenID(12))
 	b.WriteString("_")
-	b.WriteString(currentTimeStamp())
+	b.WriteString(CurrentTimeStamp())
 	return b.String()
 }
