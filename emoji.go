@@ -20,22 +20,22 @@ var (
 )
 
 type (
-	Emoji struct {
-		Email       string
-		Password    string
-		Cookies     []*http.Cookie
-		Csrf        string
-		CryptoToken string
+	emoji struct {
+		email       string
+		password    string
+		cookies     []*http.Cookie
+		csrf        string
+		cryptoToken string
 	}
 
-	AuthRes struct {
+	authRes struct {
 		Status      int    `json:"status"`
 		Message     string `json:"message"`
 		ContinueURL string `json:"continue_url"`
 	}
 )
 
-func (e *Emoji) getloginRes() {
+func (e *emoji) getloginRes() {
 	res, err := http.Get("https://accounts.kakao.com/login?continue=https%3A%2F%2Fe.kakao.com%2F")
 
 	if err != nil {
@@ -49,12 +49,12 @@ func (e *Emoji) getloginRes() {
 	csrf := csrfReg.FindStringSubmatch(body)
 	crypto := cryptoReg.FindStringSubmatch(body)
 
-	e.Csrf = csrf[1]
-	e.CryptoToken = crypto[1]
-	e.Cookies = append(e.Cookies, res.Cookies()...)
+	e.csrf = csrf[1]
+	e.cryptoToken = crypto[1]
+	e.cookies = append(e.cookies, res.Cookies()...)
 }
 
-func (e *Emoji) getTiara() {
+func (e *emoji) getTiara() {
 	res, err := http.Get(getTiaraUrl())
 
 	if err != nil {
@@ -63,10 +63,10 @@ func (e *Emoji) getTiara() {
 
 	defer res.Body.Close()
 
-	e.Cookies = append(e.Cookies, res.Cookies()...)
+	e.cookies = append(e.cookies, res.Cookies()...)
 }
 
-func (e *Emoji) pad(data []byte) []byte {
+func (e *emoji) pad(data []byte) []byte {
 	length := 16 - len(data)%16
 	var b bytes.Buffer
 	b.Write(data)
@@ -74,7 +74,7 @@ func (e *Emoji) pad(data []byte) []byte {
 	return b.Bytes()
 }
 
-func (e *Emoji) bytesToKey(data, salt []byte, output int) ([]byte, []byte) {
+func (e *emoji) bytesToKey(data, salt []byte, output int) ([]byte, []byte) {
 	key := make([]byte, 0)
 	finalKey := make([]byte, 0)
 	for len(finalKey) < output {
@@ -89,7 +89,7 @@ func (e *Emoji) bytesToKey(data, salt []byte, output int) ([]byte, []byte) {
 	return finalKey[:32], finalKey[32:output]
 }
 
-func (e *Emoji) AESEncrypt(message, passphrase string) string {
+func (e *emoji) AESEncrypt(message, passphrase string) string {
 	salt := make([]byte, 8)
 	rand.Read(salt)
 
@@ -111,9 +111,9 @@ func (e *Emoji) AESEncrypt(message, passphrase string) string {
 	return base64.StdEncoding.EncodeToString(b.Bytes())
 }
 
-func (e *Emoji) getAuth() AuthRes {
-	email := e.AESEncrypt(e.Email, e.CryptoToken)
-	pass := e.AESEncrypt(e.Password, e.CryptoToken)
+func (e *emoji) getAuth() authRes {
+	email := e.AESEncrypt(e.email, e.cryptoToken)
+	pass := e.AESEncrypt(e.password, e.cryptoToken)
 
 	data := url.Values{}
 	data.Add("k", "true")
@@ -123,12 +123,12 @@ func (e *Emoji) getAuth() AuthRes {
 	data.Add("password", pass)
 	data.Add("webview_v", "2")
 	data.Add("third", "false")
-	data.Add("authenticity_token", e.Csrf)
+	data.Add("authenticity_token", e.csrf)
 	data.Add("continue", "https://e.kakao.com/")
 
 	req, _ := http.NewRequest("POST", "https://accounts.kakao.com/weblogin/authenticate.json", bytes.NewBuffer([]byte(data.Encode())))
 
-	for _, v := range e.Cookies {
+	for _, v := range e.cookies {
 		req.AddCookie(v)
 	}
 
@@ -143,29 +143,29 @@ func (e *Emoji) getAuth() AuthRes {
 
 	defer res.Body.Close()
 
-	e.Cookies = append(e.Cookies, res.Cookies()...)
+	e.cookies = append(e.cookies, res.Cookies()...)
 
 	body, _ := ioutil.ReadAll(res.Body)
-	auth := AuthRes{}
+	auth := authRes{}
 	json.Unmarshal(body, &auth)
 
 	return auth
 }
 
-func New(email, pass string) *Emoji {
-	emoji := Emoji{}
-	emoji.Email = email
-	emoji.Password = pass
+func New(email, pass string) *emoji {
+	emoji := emoji{}
+	emoji.email = email
+	emoji.password = pass
 	return &emoji
 }
 
-func (e *Emoji) Login() {
+func (e *emoji) Login() {
 	e.getloginRes()
 	e.getTiara()
 	e.getAuth()
 }
 
-func (e *Emoji) SendEmoji(name string, id int) {
+func (e *emoji) SendEmoji(name string, id int) {
 	data, _ := json.Marshal(map[string]interface{}{
 		"agree":    "Y",
 		"idx":      id,
@@ -174,7 +174,7 @@ func (e *Emoji) SendEmoji(name string, id int) {
 
 	req, _ := http.NewRequest("POST", "https://e.kakao.com/api/v1/previews/send-preview-message", bytes.NewBuffer(data))
 
-	for _, v := range e.Cookies {
+	for _, v := range e.cookies {
 		req.AddCookie(v)
 	}
 	req.Header.Add("Content-Type", "application/json")
