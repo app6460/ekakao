@@ -15,7 +15,7 @@ var seedKey = []string{
 
 var reg, _ = regexp.Compile(`[TZ\-:.]`)
 
-func ShortenID(t int) string {
+func shortenID(t int) string {
 	var b bytes.Buffer
 	for i := 0; i < t; i++ {
 		n := rand.Int() % len(seedKey)
@@ -24,7 +24,7 @@ func ShortenID(t int) string {
 	return b.String()
 }
 
-func RandomNumericString(t int) string {
+func randomNumericString(t int) string {
 	var b bytes.Buffer
 	for i := 0; i < t; i++ {
 		n := rand.Int()%10 + 48
@@ -33,27 +33,27 @@ func RandomNumericString(t int) string {
 	return b.String()
 }
 
-func CurrentTimeStamp() string {
+func currentTimeStamp() string {
 	t := time.Now().Add(time.Hour * 9)
 	s := t.Format("2006-01-02T15:04:05.999")
 	return reg.ReplaceAllString(s, "")[2:]
 }
 
-func GenerateRandomUUIDWithDateNumber() string {
+func generateRandomUUIDWithDateNumber() string {
 	var b bytes.Buffer
 	b.WriteString("w-")
-	b.WriteString(ShortenID(12))
+	b.WriteString(shortenID(12))
 	b.WriteString("_")
-	b.WriteString(CurrentTimeStamp()[:6])
-	b.WriteString(RandomNumericString(9))
+	b.WriteString(currentTimeStamp()[:6])
+	b.WriteString(randomNumericString(9))
 	return b.String()
 }
 
-func GenerateRandomUUIDWithDateTime() string {
+func generateRandomUUIDWithDateTime() string {
 	var b bytes.Buffer
 	b.WriteString("w-")
-	b.WriteString(ShortenID(12))
+	b.WriteString(shortenID(12))
 	b.WriteString("_")
-	b.WriteString(CurrentTimeStamp())
+	b.WriteString(currentTimeStamp())
 	return b.String()
 }

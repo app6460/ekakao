@@ -35,7 +35,7 @@ type (
 	}
 )
 
-func (e *Emoji) GetloginRes() {
+func (e *Emoji) getloginRes() {
 	res, err := http.Get("https://accounts.kakao.com/login?continue=https%3A%2F%2Fe.kakao.com%2F")
 
 	if err != nil {
@@ -54,8 +54,8 @@ func (e *Emoji) GetloginRes() {
 	e.Cookies = append(e.Cookies, res.Cookies()...)
 }
 
-func (e *Emoji) GetTiara() {
-	res, err := http.Get(GetTiaraUrl())
+func (e *Emoji) getTiara() {
+	res, err := http.Get(getTiaraUrl())
 
 	if err != nil {
 		panic(err)
@@ -66,7 +66,7 @@ func (e *Emoji) GetTiara() {
 	e.Cookies = append(e.Cookies, res.Cookies()...)
 }
 
-func (e *Emoji) Pad(data []byte) []byte {
+func (e *Emoji) pad(data []byte) []byte {
 	length := 16 - len(data)%16
 	var b bytes.Buffer
 	b.Write(data)
@@ -74,7 +74,7 @@ func (e *Emoji) Pad(data []byte) []byte {
 	return b.Bytes()
 }
 
-func (e *Emoji) BytesToKey(data, salt []byte, output int) ([]byte, []byte) {
+func (e *Emoji) bytesToKey(data, salt []byte, output int) ([]byte, []byte) {
 	key := make([]byte, 0)
 	finalKey := make([]byte, 0)
 	for len(finalKey) < output {
@@ -93,13 +93,13 @@ func (e *Emoji) AESEncrypt(message, passphrase string) string {
 	salt := make([]byte, 8)
 	rand.Read(salt)
 
-	key, iv := e.BytesToKey([]byte(passphrase), salt, 48)
+	key, iv := e.bytesToKey([]byte(passphrase), salt, 48)
 	block, err := aes.NewCipher(key)
 
 	if err != nil {
 		panic(err)
 	}
-	msg := e.Pad([]byte(message))
+	msg := e.pad([]byte(message))
 	res := make([]byte, len(msg))
 
 	cipher.NewCBCEncrypter(block, iv).CryptBlocks(res, msg)
@@ -111,7 +111,7 @@ func (e *Emoji) AESEncrypt(message, passphrase string) string {
 	return base64.StdEncoding.EncodeToString(b.Bytes())
 }
 
-func (e *Emoji) GetAuth() AuthRes {
+func (e *Emoji) getAuth() AuthRes {
 	email := e.AESEncrypt(e.Email, e.CryptoToken)
 	pass := e.AESEncrypt(e.Password, e.CryptoToken)
 
@@ -160,9 +160,9 @@ func New(email, pass string) *Emoji {
 }
 
 func (e *Emoji) Login() {
-	e.GetloginRes()
-	e.GetTiara()
-	e.GetAuth()
+	e.getloginRes()
+	e.getTiara()
+	e.getAuth()
 }
 
 func (e *Emoji) SendEmoji(name string, id int) {

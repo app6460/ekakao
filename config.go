@@ -5,9 +5,9 @@ import (
 	"net/url"
 )
 
-func GetTiaraUrl() string {
-	dt := GenerateRandomUUIDWithDateTime()
-	dn := GenerateRandomUUIDWithDateNumber()
+func getTiaraUrl() string {
+	dt := generateRandomUUIDWithDateTime()
+	dn := generateRandomUUIDWithDateNumber()
 	data := map[string]interface{}{
 		"sdk": map[string]interface{}{
 			"type":    "WEB",
