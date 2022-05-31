@@ -24,7 +24,7 @@ func New(email, pass string) *emoji {
 }
 
 func (e *emoji) Login() {
-	client := webkakao.New(e.email, e.password, "https://e.kakao.com/")
+	client := webkakao.New(e.email, e.password, "https://e.kakao.com/", false)
 	client.Login()
 	e.cookies = client.Cookies()
 }
